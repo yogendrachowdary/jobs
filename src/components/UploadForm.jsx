@@ -93,6 +93,7 @@ function UploadForm() {
     "tfidf_score",
     "llama_score",
     "via",
+    "Apply Link",
     "suggestions",
     "strengths",
     "weaknesses"
@@ -176,18 +177,29 @@ function UploadForm() {
                 </tr>
               </thead>
               <tbody>
-                {currentJobs.map((job, index) => (
-                  <tr key={index}>
-                    {columnOrder.map((key) => (
-                      <td key={key}>
-                        {typeof job[key] === "number" && key.toLowerCase().includes("score")
-                          ? `${job[key].toFixed(2)}%`
-                          : job[key]}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
+  {currentJobs.map((job, index) => (
+    <tr key={index}>
+      {columnOrder.map((key) => (
+        <td key={key}>
+          {key === "Apply Link" ? (
+            job[key] ? (
+              <a href={job[key]} target="_blank" rel="noopener noreferrer" className="apply-link">
+                Apply Here
+              </a>
+            ) : (
+              "No Link"
+            )
+          ) : typeof job[key] === "number" && key.toLowerCase().includes("score") ? (
+            `${job[key].toFixed(2)}%`
+          ) : (
+            job[key]
+          )}
+        </td>
+      ))}
+    </tr>
+  ))}
+</tbody>
+
             </table>
 
             <div className="pagination">
