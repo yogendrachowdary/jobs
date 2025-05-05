@@ -73,6 +73,19 @@ function UploadForm() {
   const currentJobs = results.slice(indexOfFirst, indexOfLast);
   const totalPages = Math.ceil(results.length / itemsPerPage);
 
+  const columnOrder = [
+    "title",
+    "company",
+    "location",
+    "score",
+    "tfidf_score",
+    "llama_score",
+    "via",
+    "suggestions",
+    "strengths",
+    "weaknesses"
+  ];
+  
   return (
     <div className="upload-container">
       <form onSubmit={handleSubmit} className="upload-form">
@@ -134,16 +147,15 @@ function UploadForm() {
             <table className="styled-table">
               <thead>
                 <tr>
-                  {currentJobs.length > 0 &&
-                    Object.keys(currentJobs[0]).map((key) => (
-                      <th key={key}>{key.charAt(0).toUpperCase() + key.slice(1)}</th>
-                    ))}
+                  {columnOrder.map((key) => (
+                    <th key={key}>{key.charAt(0).toUpperCase() + key.replaceAll('_', ' ').slice(1)}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {currentJobs.map((job, index) => (
                   <tr key={index}>
-                    {Object.keys(job).map((key) => (
+                    {columnOrder.map((key) => (
                       <td key={key}>
                         {typeof job[key] === "number" && key.toLowerCase().includes("score")
                           ? `${job[key].toFixed(2)}%`
@@ -154,6 +166,7 @@ function UploadForm() {
                 ))}
               </tbody>
             </table>
+
 
             <div className="pagination">
               <button onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))} disabled={currentPage === 1}>
