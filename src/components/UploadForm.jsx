@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import "./UploadForm.css";
+import { FiUpload } from "react-icons/fi";
 
 const DEFAULT_ITEMS_PER_PAGE = 10;
 const ITEMS_PER_PAGE_OPTIONS = [5, 10, 20, 50];
@@ -20,6 +21,17 @@ function UploadForm() {
     const file = e.target.files[0];
     setResume(file);
     if (file) toast.success("Resume uploaded successfully!");
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file && file.type === "application/pdf") {
+      setResume(file);
+      toast.success("Resume uploaded via drag & drop!");
+    } else {
+      toast.error("Please drop a valid PDF file.");
+    }
   };
 
   const removeResume = () => {
@@ -85,14 +97,25 @@ function UploadForm() {
     "strengths",
     "weaknesses"
   ];
-  
+
   return (
     <div className="upload-container">
       <form onSubmit={handleSubmit} className="upload-form">
-        <label className="file-label">
-          Upload Resume (PDF)
-          <input type="file" onChange={handleFileChange} accept=".pdf" />
-        </label>
+      <label className="file-label">
+        <FiUpload style={{ marginRight: "8px" }} />
+        Upload Resume (PDF)
+        <input type="file" onChange={handleFileChange} accept=".pdf" />
+      </label>
+
+
+        {/* Drag and Drop Zone */}
+        <div
+          className="drag-drop-zone"
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={handleDrop}
+        >
+          <p>📂 Or drag & drop your resume here (PDF only)</p>
+        </div>
 
         {resume && (
           <div className="file-info">
@@ -121,7 +144,7 @@ function UploadForm() {
       {loading ? (
         <div className="loader-container">
           <div className="spinner"></div>
-          <p>Matching jobs based on your resume... please wait.</p>
+          <p>Matching jobs and ranking them using AI... Please wait a moment.</p>
         </div>
       ) : (
         results.length > 0 && (
@@ -166,7 +189,6 @@ function UploadForm() {
                 ))}
               </tbody>
             </table>
-
 
             <div className="pagination">
               <button onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))} disabled={currentPage === 1}>
