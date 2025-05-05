@@ -65,7 +65,7 @@ function UploadForm() {
 
   const handleItemsPerPageChange = (e) => {
     setItemsPerPage(Number(e.target.value));
-    setCurrentPage(1); // Reset to first page when changing items per page
+    setCurrentPage(1);
   };
 
   const indexOfLast = currentPage * itemsPerPage;
@@ -105,68 +105,75 @@ function UploadForm() {
         </button>
       </form>
 
-      {results.length > 0 && (
-        <div className="table-container">
-          <div className="table-header">
-            <h2>Top Matching Jobs</h2>
-            <div className="rows-per-page">
-              <label htmlFor="itemsPerPage">Rows per page:</label>
-              <select
-                id="itemsPerPage"
-                value={itemsPerPage}
-                onChange={handleItemsPerPageChange}
-              >
-                {ITEMS_PER_PAGE_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-          
-          <table className="styled-table">
-            <thead>
-              <tr>
-                {currentJobs.length > 0 &&
-                  Object.keys(currentJobs[0]).map((key) => (
-                    <th key={key}>{key.charAt(0).toUpperCase() + key.slice(1)}</th>
-                  ))}
-              </tr>
-            </thead>
-            <tbody>
-              {currentJobs.map((job, index) => (
-                <tr key={index}>
-                  {Object.keys(job).map((key) => (
-                    <td key={key}>
-                      {typeof job[key] === "number" && key.toLowerCase().includes("score")
-                        ? `${job[key].toFixed(2)}%`
-                        : job[key]}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <div className="pagination">
-            <button onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))} disabled={currentPage === 1}>
-              Prev
-            </button>
-            <span>
-              Page {currentPage} of {totalPages}
-            </span>
-            <button onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))} disabled={currentPage === totalPages}>
-              Next
-            </button>
-          </div>
-
-          {downloadLink && (
-            <a href={downloadLink} className="download-link" download>
-              Download CSV
-            </a>
-          )}
+      {loading ? (
+        <div className="loader-container">
+          <div className="spinner"></div>
+          <p>Matching jobs based on your resume... please wait.</p>
         </div>
+      ) : (
+        results.length > 0 && (
+          <div className="table-container">
+            <div className="table-header">
+              <h2>Top Matching Jobs</h2>
+              <div className="rows-per-page">
+                <label htmlFor="itemsPerPage">Rows per page:</label>
+                <select
+                  id="itemsPerPage"
+                  value={itemsPerPage}
+                  onChange={handleItemsPerPageChange}
+                >
+                  {ITEMS_PER_PAGE_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <table className="styled-table">
+              <thead>
+                <tr>
+                  {currentJobs.length > 0 &&
+                    Object.keys(currentJobs[0]).map((key) => (
+                      <th key={key}>{key.charAt(0).toUpperCase() + key.slice(1)}</th>
+                    ))}
+                </tr>
+              </thead>
+              <tbody>
+                {currentJobs.map((job, index) => (
+                  <tr key={index}>
+                    {Object.keys(job).map((key) => (
+                      <td key={key}>
+                        {typeof job[key] === "number" && key.toLowerCase().includes("score")
+                          ? `${job[key].toFixed(2)}%`
+                          : job[key]}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            <div className="pagination">
+              <button onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))} disabled={currentPage === 1}>
+                Prev
+              </button>
+              <span>
+                Page {currentPage} of {totalPages}
+              </span>
+              <button onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))} disabled={currentPage === totalPages}>
+                Next
+              </button>
+            </div>
+
+            {downloadLink && (
+              <a href={downloadLink} className="download-link" download>
+                Download CSV
+              </a>
+            )}
+          </div>
+        )
       )}
     </div>
   );
