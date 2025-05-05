@@ -63,9 +63,9 @@ function UploadForm() {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      const { results, csv_download } = response.data;
+      const { results, csv_download_url } = response.data;
+      setDownloadLink(csv_download_url); 
       setResults(results);
-      setDownloadLink(`http://localhost:5000${csv_download}`);
       setCurrentPage(1);
       toast.success("Jobs matched successfully!");
     } catch (err) {
