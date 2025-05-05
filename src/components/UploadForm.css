@@ -250,3 +250,13 @@
   cursor: pointer;
 }
 
+.apply-link {
+  color: #1e40af;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.apply-link:hover {
+  text-decoration: underline;
+  color: #2563eb;
+}
