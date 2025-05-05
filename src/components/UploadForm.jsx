@@ -3,7 +3,8 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import "./UploadForm.css";
 
-const ITEMS_PER_PAGE = 5;
+const DEFAULT_ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE_OPTIONS = [5, 10, 20, 50];
 
 function UploadForm() {
   const [resume, setResume] = useState(null);
@@ -13,6 +14,7 @@ function UploadForm() {
   const [downloadLink, setDownloadLink] = useState("");
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(DEFAULT_ITEMS_PER_PAGE);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -61,10 +63,15 @@ function UploadForm() {
     }
   };
 
-  const indexOfLast = currentPage * ITEMS_PER_PAGE;
-  const indexOfFirst = indexOfLast - ITEMS_PER_PAGE;
+  const handleItemsPerPageChange = (e) => {
+    setItemsPerPage(Number(e.target.value));
+    setCurrentPage(1); // Reset to first page when changing items per page
+  };
+
+  const indexOfLast = currentPage * itemsPerPage;
+  const indexOfFirst = indexOfLast - itemsPerPage;
   const currentJobs = results.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(results.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(results.length / itemsPerPage);
 
   return (
     <div className="upload-container">
@@ -100,23 +107,43 @@ function UploadForm() {
 
       {results.length > 0 && (
         <div className="table-container">
-          <h2>Top Matching Jobs</h2>
+          <div className="table-header">
+            <h2>Top Matching Jobs</h2>
+            <div className="rows-per-page">
+              <label htmlFor="itemsPerPage">Rows per page:</label>
+              <select
+                id="itemsPerPage"
+                value={itemsPerPage}
+                onChange={handleItemsPerPageChange}
+              >
+                {ITEMS_PER_PAGE_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          
           <table className="styled-table">
             <thead>
               <tr>
-                <th>Title</th>
-                <th>Company</th>
-                <th>Location</th>
-                <th>Score</th>
+                {currentJobs.length > 0 &&
+                  Object.keys(currentJobs[0]).map((key) => (
+                    <th key={key}>{key.charAt(0).toUpperCase() + key.slice(1)}</th>
+                  ))}
               </tr>
             </thead>
             <tbody>
               {currentJobs.map((job, index) => (
                 <tr key={index}>
-                  <td>{job.title}</td>
-                  <td>{job.company}</td>
-                  <td>{job.location}</td>
-                  <td>{job.score.toFixed(2)}%</td>
+                  {Object.keys(job).map((key) => (
+                    <td key={key}>
+                      {typeof job[key] === "number" && key.toLowerCase().includes("score")
+                        ? `${job[key].toFixed(2)}%`
+                        : job[key]}
+                    </td>
+                  ))}
                 </tr>
               ))}
             </tbody>
