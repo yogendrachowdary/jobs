@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "./UploadForm.css"; // import the CSS
+import toast from "react-hot-toast";
+import "./UploadForm.css";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -11,18 +12,29 @@ function UploadForm() {
   const [results, setResults] = useState([]);
   const [downloadLink, setDownloadLink] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
   const handleFileChange = (e) => {
-    setResume(e.target.files[0]);
+    const file = e.target.files[0];
+    setResume(file);
+    if (file) toast.success("Resume uploaded successfully!");
+  };
+
+  const removeResume = () => {
+    setResume(null);
+    toast("Resume removed.");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!resume) {
-      alert("Please upload a resume first!");
+      toast.error("Resume is required. Please upload your resume.");
+      return;
+    }
+
+    if (!jobRole.trim() || !location.trim()) {
+      toast.error("Please fill in both the job role and location fields.");
       return;
     }
 
@@ -41,14 +53,14 @@ function UploadForm() {
       setResults(results);
       setDownloadLink(`http://localhost:5000${csv_download}`);
       setCurrentPage(1);
+      toast.success("Jobs matched successfully!");
     } catch (err) {
-      setError("Error uploading or processing the resume.");
+      toast.error("Error uploading or processing the resume.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Pagination
   const indexOfLast = currentPage * ITEMS_PER_PAGE;
   const indexOfFirst = indexOfLast - ITEMS_PER_PAGE;
   const currentJobs = results.slice(indexOfFirst, indexOfLast);
@@ -61,6 +73,13 @@ function UploadForm() {
           Upload Resume (PDF)
           <input type="file" onChange={handleFileChange} accept=".pdf" />
         </label>
+
+        {resume && (
+          <div className="file-info">
+            <span>📄 {resume.name}</span>
+            <button className="remove-btn" type="button" onClick={removeResume}>Remove</button>
+          </div>
+        )}
 
         <input
           type="text"
@@ -78,8 +97,6 @@ function UploadForm() {
           {loading ? "Uploading..." : "Submit"}
         </button>
       </form>
-
-      {error && <p className="error-msg">{error}</p>}
 
       {results.length > 0 && (
         <div className="table-container">

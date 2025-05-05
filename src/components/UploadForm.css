@@ -138,4 +138,29 @@
   .download-link:hover {
     background-color: #e68900;
   }
+
+  .file-info {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    background-color: #f0f4ff;
+    padding: 8px 12px;
+    border-radius: 6px;
+  }
+  
+  .remove-btn {
+    background-color: #ff4d4f;
+    color: white;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  
+  .remove-btn:hover {
+    background-color: #e60000;
+  }
   
