@@ -3,6 +3,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import "./UploadForm.css";
 import { FiUpload } from "react-icons/fi";
+import { useEffect } from "react";
 
 const DEFAULT_ITEMS_PER_PAGE = 10;
 const ITEMS_PER_PAGE_OPTIONS = [5, 10, 20, 50];
@@ -59,13 +60,13 @@ function UploadForm() {
 
     try {
       setLoading(true);
-      const response = await axios.post("http://localhost:5000/api/match-jobs", formData, {
+      const response = await axios.post("https://job-search-x00b.onrender.com/api/match-jobs", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      const { results, csv_download } = response.data;
+      const { results, csv_download_url } = response.data;
+      setDownloadLink(csv_download_url); 
       setResults(results);
-      setDownloadLink(`http://localhost:5000${csv_download}`);
       setCurrentPage(1);
       toast.success("Jobs matched successfully!");
     } catch (err) {
@@ -99,8 +100,41 @@ function UploadForm() {
     "weaknesses"
   ];
 
+  const [backendStatus, setBackendStatus] = useState("connecting");
+
+useEffect(() => {
+  const checkHealth = async () => {
+    try {
+      const res = await axios.get("https://job-search-x00b.onrender.com/api/health");
+      if (res.status === 200 && res.data.status === "healthy") {
+        setBackendStatus("healthy");
+      } else {
+        setBackendStatus("unhealthy");
+      }
+    } catch (err) {
+      setBackendStatus("unhealthy");
+    }
+  };
+
+  checkHealth(); // first check
+  const interval = setInterval(checkHealth, 7000); // repeat every 7 sec
+
+  return () => clearInterval(interval); // cleanup on unmount
+}, []);
+
   return (
     <div className="upload-container">
+    <div className="backend-status">
+  {backendStatus === "connecting" && (
+    <p className="status connecting">🔄 Connecting to backend...</p>
+  )}
+  {backendStatus === "healthy" && (
+    <p className="status healthy">✅ Backend is active</p>
+  )}
+  {backendStatus === "unhealthy" && (
+    <p className="status unhealthy">❌ Backend is not responding</p>
+  )}
+</div>
       <form onSubmit={handleSubmit} className="upload-form">
       <label className="file-label">
         <FiUpload style={{ marginRight: "8px" }} />
